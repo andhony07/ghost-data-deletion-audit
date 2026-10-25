@@ -174,11 +174,15 @@ class DeletionAuditEngine:
         self.manifest_path = os.path.join(self.dataset_dir, "evidence_files.csv")
         self.rules_path = os.path.join(self.dataset_dir, "deletion_rules.csv")
 
-        self.identities_raw = list(csv.DictReader(open(self.identities_path, encoding='utf-8')))
-        self.audit_log_raw = list(csv.DictReader(open(self.audit_log_path, encoding='utf-8')))
-        self.manifest_raw = list(csv.DictReader(open(self.manifest_path, encoding='utf-8')))
+        with open(self.identities_path, encoding='utf-8') as f:
+            self.identities_raw = list(csv.DictReader(f))
+        with open(self.audit_log_path, encoding='utf-8') as f:
+            self.audit_log_raw = list(csv.DictReader(f))
+        with open(self.manifest_path, encoding='utf-8') as f:
+            self.manifest_raw = list(csv.DictReader(f))
         self.manifest_map = {r['file_id']: r for r in self.manifest_raw}
-        self.rules_raw = list(csv.DictReader(open(self.rules_path, encoding='utf-8')))
+        with open(self.rules_path, encoding='utf-8') as f:
+            self.rules_raw = list(csv.DictReader(f))
 
     def build_identity_graph(self):
         """Builds comprehensive current and historical identity mapping for all users."""
@@ -225,7 +229,8 @@ class DeletionAuditEngine:
 
     def index_system_activity(self):
         """Indexes deletion_worker activities, correlations, and explicit links."""
-        self.sys_acts = list(csv.DictReader(open(self.system_activity_path, encoding='utf-8')))
+        with open(self.system_activity_path, encoding='utf-8') as f:
+            self.sys_acts = list(csv.DictReader(f))
         self.explicit_links = {}
         self.worker_activities = []
         
@@ -252,7 +257,8 @@ class DeletionAuditEngine:
             if ext == '.sql' and os.path.exists(full_path):
                 conn = sqlite3.connect(':memory:')
                 try:
-                    conn.executescript(open(full_path, 'r', encoding='utf-8', errors='ignore').read())
+                    with open(full_path, 'r', encoding='utf-8', errors='ignore') as f:
+                        conn.executescript(f.read())
                     cur = conn.cursor()
                     cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
                     tables = [t[0] for t in cur.fetchall()]
