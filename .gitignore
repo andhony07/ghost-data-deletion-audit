@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+dataset/
+scratch/
+scratch_ocr.json
+log.txt
+output.csv
+code.zip
+agent-trace*
